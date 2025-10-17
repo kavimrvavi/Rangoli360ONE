@@ -1,93 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<title>Future of Finance AR</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar-nft.min.js"></script>
-<style>
-body { margin: 0; overflow: hidden; background: black; }
-#loading {
-position: absolute; top: 50%; left: 50%;
-transform: translate(-50%, -50%);
-font-family: sans-serif; color: white;
-animation: blink 1.5s infinite;
-}
-@keyframes blink { 50% { opacity: 0.3; } }
-</style>
+  <meta charset="utf-8" />
+  <title>360 ONE – Future of Finance AR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+      height: 100vh;
+    }
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-family: sans-serif;
+      animation: blink 1.5s infinite;
+      z-index: 10;
+    }
+    @keyframes blink { 50% { opacity: 0.3; } }
+    video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+  </style>
 </head>
- 
 <body>
-<div id="loading">✨ Loading Future of Finance AR...</div>
- 
-<a-scene
-embedded
-vr-mode-ui="enabled: false"
-arjs="sourceType: webcam; debugUIEnabled: false;"
-renderer="logarithmicDepthBuffer: true;"
->
-<a-entity camera></a-entity>
- 
-<!-- Lighting for glow and 3D depth -->
-<a-entity light="type: ambient; color: #fff; intensity: 0.8"></a-entity>
-<a-entity light="type: point; color: #ffd700; intensity: 1.5; distance: 6" position="0 1 -2"></a-entity>
- 
-<!-- 3D Logo Group -->
-<a-entity id="logo" position="0 0 -3" rotation="0 0 0"
-animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
- 
-<!-- 360 -->
-<a-entity position="-0.8 0.2 0">
-<a-text
-value="36O"
-color="#000000"
-position="0 0 0"
-scale="3 3 3"
-shader="flat"
-material="color: #000; metalness: 0.8; roughness: 0.2"
-></a-text>
-</a-entity>
- 
-<!-- ONE vertical downward -->
-<a-entity position="0 0 0" rotation="0 0 -90">
-<a-text
-value="NE"
-color="#000000"
-position="0 +0.15 -0.07"
-scale="3 3 3"
-shader="flat"
-material="color: #000; metalness: 0.8; roughness: 0.2"
-></a-text>
-</a-entity>
- 
-<script>
-function rescale() {
-const minSide = Math.min(window.innerWidth, window.innerHeight);
- 
-// Uniform scale for the whole mark:
-// phones -> small (0.25–0.45), tablets -> medium, desktop -> up to 1
-const S_MIN = 0.25, S_MAX = 1.0;
-let s = minSide / 900; // 360px -> 0.40, 768px -> 0.85, 1200px -> 1.33
-s = Math.max(S_MIN, Math.min(S_MAX, s));
- 
-const logo = document.getElementById('logo');
-if (!logo) return;
- 
-// Scale entire group so everything shrinks together
-logo.setAttribute('scale', `${s} ${s} ${s}`);
- 
-// Bring it a bit closer when very small so it stays readable
-const z = -2.7 + (0.8 * (1 - s)); // s small => closer (less negative)
-logo.setAttribute('position', `0 0 ${z.toFixed(2)}`);
-}
- 
-window.addEventListener('load', () => {
-rescale();
-document.getElementById('loading').style.display = 'none';
-});
-window.addEventListener('resize', rescale);
-window.addEventListener('orientationchange', rescale);
-</script>
+  <div id="loading">✨ Happy Diwali from 360 ONE ✨</div>
+
+  <!-- background live camera feed -->
+  <video id="bg" autoplay muted playsinline></video>
+
+  <a-scene
+    embedded
+    vr-mode-ui="enabled: false"
+    renderer="antialias: true; colorManagement: true;"
+  >
+    <a-entity camera position="0 0 0"></a-entity>
+
+    <!-- ambient + point lights -->
+    <a-entity light="type: ambient; color: #fff; intensity: 0.8"></a-entity>
+    <a-entity light="type: point; color: #ffd700; intensity: 1.5; position: 1 1 2"></a-entity>
+
+    <!-- 3D logo model -->
+     <a-entity
+       id="logo"
+       gltf-model="assets/360one.glb"
+       position="0 0 -3"
+       scale="1 1 1"
+       rotation="0 0 0"
+       animation="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
+     >
+     </a-entity>
+  </a-scene>
+
+  <script>
+    // Turn on camera feed in background
+    async function startCam() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        const video = document.getElementById("bg");
+        video.srcObject = stream;
+      } catch (err) {
+        console.error("Camera error:", err);
+      }
+    }
+
+    function rescale() {
+      const logo = document.getElementById('logo');
+      const minSide = Math.min(window.innerWidth, window.innerHeight);
+      let s = minSide / 900;
+      s = Math.max(0.25, Math.min(0.9, s));
+      logo.setAttribute('scale', `${s} ${s} ${s}`);
+    }
+
+    window.addEventListener('load', () => {
+      startCam();
+      rescale();
+      document.getElementById('loading').style.display = 'none';
+    });
+    window.addEventListener('resize', rescale);
+    window.addEventListener('orientationchange', rescale);
+  </script>
 </body>
 </html>
